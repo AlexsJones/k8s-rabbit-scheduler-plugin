@@ -1,0 +1,77 @@
+# Currently just a placeholder for the deps of deploying the scheduler
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: kube-system
+  name: rabbit-scheduler
+  labels:
+    app: rabbit-scheduler
+    component: rabbit-scheduler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: rabbit-scheduler
+  namespace: kube-system
+rules:
+- apiGroups: ["storage.k8s.io"]
+  resources: ["csinodes", "storageclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["update"]
+- apiGroups: ["events.k8s.io"]
+  resources: ["events"]
+  verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rabbit-scheduler
+subjects:
+- kind: ServiceAccount
+  name: rabbit-scheduler
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: rabbit-scheduler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rabbit-scheduler-kube-scheduler
+subjects:
+- kind: ServiceAccount
+  name: rabbit-scheduler
+  namespace: kube-system
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: system:kube-scheduler
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbit-scheduler
+  namespace: kube-system
+  labels:
+    app: rabbit-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbit-scheduler
+  template:
+    metadata:
+      labels:
+        app: rabbit-scheduler
+    spec:
+      serviceAccount: rabbit-scheduler
+      containers:
+        - name: rabbit-scheduler
+          command:
+          - rabbit-scheduler
+          - --v=0
+          image: tibbar/k8s-rabbit-scheduler:v1
+          imagePullPolicy: Always
