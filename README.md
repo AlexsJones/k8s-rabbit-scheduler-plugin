@@ -1,6 +1,6 @@
 # Rabbit Scheduler
 
-This is an example of how to write a simple filter for Kuberentes the scheduler plugin system.
+This is an example of how to write a simple filter for Kubernetes the scheduler plugin system.
 
 ## Prior art
 
