@@ -1,4 +1,6 @@
-# Rabbit Scheduler
+# 🐰 Rabbit Scheduler 🐰
+
+[![Docker](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml)
 
 This is an example of how to write a simple filter for Kubernetes the scheduler plugin system.
 
