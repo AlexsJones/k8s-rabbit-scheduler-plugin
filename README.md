@@ -1,4 +1,7 @@
-# Rabbit Scheduler
+# 🐰 Rabbit Scheduler 🐰
+[![Docker](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml)
+
+
 
 This is an example of how to write a simple filter for Kuberentes the scheduler plugin system.
 When the plugin is installed and examples run, only one will schedule successfully.
@@ -12,6 +15,8 @@ When the plugin is installed and examples run, only one will schedule successful
 After the scheduler plugin has been insalled
 
 - `kubectl apply -f examples`
+
+This is an example of how to write a simple filter for Kubernetes the scheduler plugin system.
 
 ## Prior art
 
