@@ -102,12 +102,12 @@ func WriteSchedulerConfig(name, path, kubeConfigPath string) error {
 	cfg.Plugins = &kubeschedulerconfig.Plugins{
 		PreFilter: &kubeschedulerconfig.PluginSet{
 			Enabled: []kubeschedulerconfig.Plugin{
-				{Name: "ZonalDistribution"},
+				{Name: "Rabbit"},
 			},
 		},
 		Filter: &kubeschedulerconfig.PluginSet{
 			Enabled: []kubeschedulerconfig.Plugin{
-				{Name: "ZonalDistribution"},
+				{Name: "Rabbit"},
 			},
 		},
 	}

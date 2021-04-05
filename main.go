@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/AlexsJones/k8s-rabbit-scheduler-plugin/pkg"
-	"os"
-
 	"github.com/AlexsJones/k8s-rabbit-scheduler-plugin/plugin"
 	"k8s.io/klog"
 	"k8s.io/kubernetes/cmd/kube-scheduler/app"
+	"os"
 )
 
 const (
@@ -25,7 +24,7 @@ func main() {
 		klog.Fatal(err)
 	}
 
-	// Force the usage of our custom config
+	//Force the usage of our custom config
 	os.Args = append(os.Args, fmt.Sprintf("--config=%s", configPath))
 
 	command := app.NewSchedulerCommand(

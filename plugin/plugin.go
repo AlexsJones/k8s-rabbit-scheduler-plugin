@@ -2,8 +2,8 @@ package plugin
 
 import (
 	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	Name             = "RabbitPlugin"
+	Name             = "Rabbit"
 )
 
 type RabbitPlugin struct {
@@ -21,42 +21,56 @@ type RabbitPlugin struct {
 
 var _ framework.PreFilterPlugin = &RabbitPlugin{}
 var _ framework.FilterPlugin = &RabbitPlugin{}
-
 func (p *RabbitPlugin) Name() string {
 	return Name
 }
 
 func (p *RabbitPlugin) PreFilter(pc *framework.PluginContext, pod *corev1.Pod) *framework.Status {
+	var ownerReference *metav1.OwnerReference
 
+	ownerReference, _ = GetOwnerReference("ReplicaSet",pod.GetOwnerReferences())
 
-	return framework.NewStatus(framework.Success, "")
+	if ownerReference == nil {
+		return framework.NewStatus(framework.Error, "could not find owning deployment")
+	}
+
+	rs, err := p.clientset.AppsV1().ReplicaSets(pod.Namespace).Get(ownerReference.Name, metav1.GetOptions{})
+	if err != nil {
+		return framework.NewStatus(framework.Error, fmt.Errorf("could not find owning deployment: %w", err).Error())
+	}
+
+	ownerReference, _ = GetOwnerReference("Deployment",rs.GetOwnerReferences())
+
+	deployment, err := p.clientset.AppsV1().Deployments(pod.Namespace).Get(ownerReference.Name, metav1.GetOptions{})
+	if err != nil {
+		return framework.NewStatus(framework.Error, fmt.Errorf("could not find owning deployment: %w", err).Error())
+	}
+
+	if _, ok := deployment.Labels["rabbitCompatible"];  !ok {
+		return framework.NewStatus(framework.Unschedulable, "")
+	}
+	// Do other compute and store in pc.Write...
+
+	return framework.NewStatus(framework.Success, "Successfully scheduled")
 }
 
 func (p *RabbitPlugin) Filter(pc *framework.PluginContext, pod *corev1.Pod, nodeName string) *framework.Status {
-
-	// Ignore pods that are not labelled as rabbitCompatible
-	if _, ok := pod.Labels["rabbitCompatible"];  !ok {
-		return framework.NewStatus(framework.Unschedulable, "")
-	}
 
 
 	return framework.NewStatus(framework.Success, "")
 }
 
 func New(configuration *runtime.Unknown, f framework.FrameworkHandle) (framework.Plugin, error) {
-	// This is effectively a hack. Newer versions (1.17+) of the scheduler runtime provide access
-	// to watchers via the FrameworkHandle. For now, inject our own k8s clientset set to gain access
-	// to volume information
-	// https://github.com/cockroachlabs/crl-scheduler/blob/master/plugin/plugin.go
+
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, fmt.Errorf("could not build in cluster rest config: %w", err)
 	}
 
-	clientset, err := kubernetes.NewForConfig(cfg)
+	clientSet, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("could not build clientset with in cluster rest config: %w", err)
 	}
 
-	return &RabbitPlugin{handle: f, clientset: clientset}, nil
+	return &RabbitPlugin{clientset: clientSet, handle:f }, nil
 }
