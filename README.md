@@ -1,6 +1,7 @@
 # 🐰 Rabbit Scheduler 🐰
 [![Docker](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/AlexsJones/k8s-rabbit-scheduler-plugin/actions/workflows/docker-image.yml)
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/3019dcd5bf6a235de1d6/maintainability)](https://codeclimate.com/github/AlexsJones/k8s-rabbit-scheduler-plugin/maintainability)
 
 
 This is an example of how to write a simple filter for Kuberentes the scheduler plugin system.
